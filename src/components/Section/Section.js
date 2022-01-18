@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import s from './Section.module.scss';
 
-function Section({ title, children }) {
+const Section = ({ title, children }) => {
   return (
     <section className={s.Section}>
       <h2 className={s.Title}>{title}</h2>

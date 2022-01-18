@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import contactActions from '../../redux/contacts/contacts-actions';
 import Button from '../Button/Button';
 import s from './AddForm.module.scss';
 
-function AddForm({ onSubmit }) {
+const AddForm = ({ contacts, onSubmit }) => {
   const [contact, setContact] = useState({ name: '', number: '' });
 
   const handleChange = ({ target }) => {
@@ -14,6 +16,13 @@ function AddForm({ onSubmit }) {
 
   const handleSubmit = evt => {
     evt.preventDefault();
+
+    const isNotUnique = contacts.find(item => item.name === contact.name);
+
+    if (isNotUnique) {
+      alert(`${contact.name} name is already in contacts`);
+      return;
+    };
 
     onSubmit(contact);
     reset();
@@ -57,7 +66,18 @@ function AddForm({ onSubmit }) {
 }
 
 AddForm.propTypes = {
+  contacts: PropTypes.arrayOf(
+    PropTypes.objectOf(PropTypes.string.isRequired).isRequired,
+  ).isRequired,
   onSubmit: PropTypes.func.isRequired,
 };
 
-export default AddForm;
+const mapStateToProps = state => ({
+  contacts: state.contacts.items,
+});
+
+const mapDispatchToProps = dispatch => ({
+  onSubmit: contact => dispatch(contactActions.addContact(contact)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(AddForm);
