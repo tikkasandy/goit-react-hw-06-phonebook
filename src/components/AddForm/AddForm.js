@@ -1,11 +1,14 @@
 import { useState } from 'react';
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
+import { useDispatch, useSelector } from 'react-redux';
 import contactActions from '../../redux/contacts/contacts-actions';
+import { getContacts } from '../../redux/contacts/contacts-selectors';
 import Button from '../Button/Button';
 import s from './AddForm.module.scss';
 
-const AddForm = ({ contacts, onSubmit }) => {
+const AddForm = () => {
+  const contacts = useSelector(getContacts);
+  const dispatch = useDispatch();
+
   const [contact, setContact] = useState({ name: '', number: '' });
 
   const handleChange = ({ target }) => {
@@ -24,7 +27,7 @@ const AddForm = ({ contacts, onSubmit }) => {
       return;
     };
 
-    onSubmit(contact);
+    dispatch(contactActions.addContact(contact));
     reset();
   };
 
@@ -63,21 +66,6 @@ const AddForm = ({ contacts, onSubmit }) => {
       <Button label="Add contact" type="submit" />
     </form>
   );
-}
-
-AddForm.propTypes = {
-  contacts: PropTypes.arrayOf(
-    PropTypes.objectOf(PropTypes.string.isRequired).isRequired,
-  ).isRequired,
-  onSubmit: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = state => ({
-  contacts: state.contacts.items,
-});
-
-const mapDispatchToProps = dispatch => ({
-  onSubmit: contact => dispatch(contactActions.addContact(contact)),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(AddForm);
+export default AddForm;

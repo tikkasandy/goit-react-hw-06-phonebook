@@ -1,51 +1,29 @@
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
+import { useDispatch, useSelector } from 'react-redux';
 import ContactItem from '../ContactItem/ContactItem';
 import contactActions from '../../redux/contacts/contacts-actions';
+import { getVisibleContacts } from '../../redux/contacts/contacts-selectors';
 import s from './Contacts.module.scss';
 
-const Contacts = ({ contacts, onDeleteContact }) => (
-  <ul className={s.ContactsList}>
-    {contacts.map(({ id, name, number }) => (
-      <li key={id} className={s.ContactsItem}>
-        <ContactItem
-          id={id}
-          name={name}
-          number={number}
-          onClick={onDeleteContact}
-        />
-      </li>
-    ))}
-  </ul>
-);
+const Contacts = () => {
+  const contacts = useSelector(getVisibleContacts);
+  const dispatch = useDispatch();
 
-Contacts.propTypes = {
-  contacts: PropTypes.arrayOf(
-    PropTypes.objectOf(PropTypes.string.isRequired).isRequired,
-  ).isRequired,
-  onDeleteContact: PropTypes.func.isRequired,
-};
+  const onDeleteContact = id => dispatch(contactActions.deleteContact(id));
 
-const getVisibleContacts = (contacts, filter) => {
-  const normalizedFilter = filter.toLowerCase();
-
-  return sortContacts(
-    contacts.filter(contact =>
-      contact.name.toLowerCase().includes(normalizedFilter),
-    ),
+  return (
+    <ul className={s.ContactsList}>
+      {contacts.map(({ id, name, number }) => (
+        <li key={id} className={s.ContactsItem}>
+          <ContactItem
+            id={id}
+            name={name}
+            number={number}
+            onClick={onDeleteContact}
+          />
+        </li>
+      ))}
+    </ul>
   );
 };
 
-const sortContacts = data => {
-  return [...data].sort((a, b) => a.name.localeCompare(b.name));
-};
-
-const mapStateToProps = ({ contacts: { items, filter } }) => ({
-  contacts: getVisibleContacts(items, filter),
-});
-
-const mapDispatchToProps = dispatch => ({
-  onDeleteContact: id => dispatch(contactActions.deleteContact(id)),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(Contacts);
+export default Contacts;
